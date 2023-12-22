@@ -13,12 +13,11 @@ class GPSMapScreen extends StatefulWidget {
 class GPSMapAppState extends State<GPSMapScreen> {
   final Completer<GoogleMapController> _controller = Completer<GoogleMapController>();
 
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
-
   CameraPosition? _initialCameraPosition;
+
+  final Set<Polyline> _polylineSet = {};
+  int _polylineIdCounter = 0;
+  LatLng? _prevPosition;
 
   @override
   void initState() {
@@ -38,6 +37,21 @@ class GPSMapAppState extends State<GPSMapScreen> {
 
     const LocationSettings locationSettings = LocationSettings();
     Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position position) {
+      final LatLng currentPosition = LatLng(position.latitude, position.longitude);
+      final Polyline polyline = Polyline(
+        polylineId: PolylineId('$_polylineIdCounter'),
+        color: Colors.red,
+        width: 3,
+        points: [
+          _prevPosition ?? _initialCameraPosition!.target,
+          currentPosition,
+        ]
+      );
+      setState(() {
+        _polylineSet.add(polyline);
+        _prevPosition = currentPosition;
+      });
+      _polylineIdCounter++;
       _moveCamera(position);
     });
   }
@@ -53,6 +67,7 @@ class GPSMapAppState extends State<GPSMapScreen> {
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
+              polylines: _polylineSet,
             ),
     );
   }
