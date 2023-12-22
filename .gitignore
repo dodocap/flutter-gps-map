@@ -215,4 +215,6 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 
+/android/app/src/main/res/values/secure_string.xml
+
 # End of https://www.toptal.com/developers/gitignore/api/flutter,android,androidstudio,xcode
